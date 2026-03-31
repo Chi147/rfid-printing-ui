@@ -1,121 +1,76 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-function App() {
-  const [count, setCount] = useState(0)
+import PrintPurposeSelector from "./components/PrintPurposeSelector";
+import SchemaForm from "./components/SchemaForm";
+import TagPreview from "./components/TagPreview";
+import TagInfoPanel from "./components/TagInfoPanel";
+
+import {
+  createInitialValues,
+  type LabelFormValues,
+  validateForm,
+} from "./utils/schema";
+
+export default function App() {
+  const [values, setValues] = useState<LabelFormValues>(createInitialValues());
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const updateField = (key: keyof LabelFormValues, value: string) => {
+    setValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleModeChange = (mode: "general" | "project") => {
+    setValues((prev) => ({ ...prev, mode }));
+  };
+
+  const handleValidate = () => {
+    setErrors(validateForm(values));
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="min-h-screen w-full bg-gradient-to-br from-sky-100 via-blue-50 to-indigo-100 px-6 py-6">
+      <div className="mx-auto w-full max-w-[1500px]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_520px] items-start">
+          <Card className="rounded-3xl border-blue-200 bg-white/90 shadow-xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-center text-2xl">Tag information</CardTitle>
+            </CardHeader>
 
-      <div className="ticks"></div>
+            <CardContent className="space-y-6">
+              <PrintPurposeSelector
+                value={values.mode}
+                onChange={handleModeChange}
+              />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+              <SchemaForm
+                values={values}
+                errors={errors}
+                onChange={updateField}
+              />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+              <div className="flex gap-3 pt-2">
+                <Button onClick={handleValidate}>Validate</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setValues(createInitialValues());
+                    setErrors({});
+                  }}
+                >
+                  Reset
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-6 xl:sticky xl:top-6">
+            <TagPreview values={values} />
+            <TagInfoPanel values={values} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
-
-export default App

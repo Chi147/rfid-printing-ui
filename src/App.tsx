@@ -72,6 +72,10 @@ export default function App() {
 
   const previewRef = useRef<HTMLDivElement | null>(null);
 
+  //TIMEOUT 60s
+  const SCAN_TIMEOUT_MS = 60000;
+  const scanTimeoutRef = useRef<number | null>(null);
+
   useEffect(() => {
     let mounted = true;
 
@@ -156,6 +160,7 @@ export default function App() {
       };
 
       setCurrentJob(jobToSave);
+      clearScanTimeout();
       setUiState("saving");
 
       void (async () => {
@@ -189,6 +194,12 @@ export default function App() {
         }
       })();
     }, [currentJob, values.epc, values.lastUpdated]);
+  
+    useEffect(() => {
+      return () => {
+        clearScanTimeout();
+      };
+    }, []);
 
   const advanceToNextBarcode = () => {
     const next = serialNumber + 1;
@@ -213,6 +224,8 @@ export default function App() {
   };
 
   const handleReset = () => {
+    clearScanTimeout();
+
     setValues({
       ...createInitialValues(),
       barcodeNumber: String(serialNumber),
@@ -240,6 +253,7 @@ export default function App() {
       return;
     }
 
+    clearScanTimeout();
     setUiState("saving");
 
     try {
@@ -302,11 +316,32 @@ export default function App() {
       printedAtISO: new Date().toISOString(),
     });
     setUiState("waiting_scan");
+    startScanTimeout();
   };
 
   const handleCancelJob = () => {
+    clearScanTimeout;
     setCurrentJob(null);
     setUiState("ready");
+  };
+
+  const clearScanTimeout = () => {
+  if (scanTimeoutRef.current !== null) {
+    window.clearTimeout(scanTimeoutRef.current);
+    scanTimeoutRef.current = null;
+  }
+};
+
+  const startScanTimeout = () => {
+    clearScanTimeout();
+
+    scanTimeoutRef.current = window.setTimeout(() => {
+      setCurrentJob((prev) => {
+        if (!prev || prev._savingDone) return prev;
+        setUiState("timeout");
+        return prev;
+      });
+    }, SCAN_TIMEOUT_MS);
   };
 
   return (

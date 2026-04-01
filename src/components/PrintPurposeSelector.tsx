@@ -17,48 +17,67 @@ export default function PrintPurposeSelector({ value, onChange }: Props) {
         onValueChange={(v) => onChange(v as LabelMode)}
         className="grid gap-3 md:grid-cols-2"
       >
-        <label
-          className={`cursor-pointer rounded-2xl border p-4 transition ${
-            value === "general"
-              ? "border-blue-500 bg-blue-50 shadow-md"
-              : "border-slate-200 bg-white"
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <RadioGroupItem value="general" id="general" className="mt-1" />
-            <div>
-              <div className="flex items-center gap-2 font-semibold">
-                <Package className="h-4 w-4 text-blue-700" />
-                General organizing
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                For shelves, loose items, boxes, and general storage.
-              </p>
-            </div>
-          </div>
-        </label>
+        <OptionCard
+          id="general"
+          value="general"
+          selected={value === "general"}
+          title="General organizing"
+          description="For shelves, loose items, boxes, and general storage."
+          icon={<Package className="h-7 w-6 text-blue-700" />}
+          onSelect={onChange}
+        />
 
-        <label
-          className={`cursor-pointer rounded-2xl border p-4 transition ${
-            value === "project"
-              ? "border-blue-500 bg-blue-50 shadow-md"
-              : "border-slate-200 bg-white"
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            <RadioGroupItem value="project" id="project" className="mt-1" />
-            <div>
-              <div className="flex items-center gap-2 font-semibold">
-                <FolderKanban className="h-4 w-4 text-blue-700" />
-                Project
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                For project boxes, grouped materials, and kits.
-              </p>
-            </div>
-          </div>
-        </label>
+        <OptionCard
+          id="project"
+          value="project"
+          selected={value === "project"}
+          title="Project"
+          description="For project boxes, grouped materials, and kits."
+          icon={<FolderKanban className="h-7 w-6 text-blue-700" />}
+          onSelect={onChange}
+        />
       </RadioGroup>
+    </div>
+  );
+}
+
+type OptionCardProps = {
+  id: string;
+  value: LabelMode;
+  selected: boolean;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  onSelect: (value: LabelMode) => void;
+};
+
+function OptionCard({
+  value,
+  selected,
+  title,
+  description,
+  icon,
+  onSelect,
+}: OptionCardProps) {
+  return (
+    <div
+      onClick={() => onSelect(value)}
+      className={`cursor-pointer rounded-2xl border p-4 transition ${
+        selected
+          ? "border-blue-500 bg-blue-50 shadow-md"
+          : "border-slate-200 bg-white"
+      }`}
+    >
+      <div className="flex items-center gap-4">
+        <div className="shrink-0">
+          {icon}
+        </div>
+
+        <div className="flex flex-col justify-center">
+          <div className="font-semibold text-slate-900">{title}</div>
+          <p className="text-sm text-slate-600">{description}</p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -56,3 +56,19 @@ export async function saveLabel(payload: SaveJobPayload) {
 
   return data;
 }
+
+export async function fetchNextBarcode() {
+  const res = await fetch(`${API_BASE}/rfid/next-barcode/`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch next barcode");
+  }
+
+  const data = await res.json();
+
+  if (data.status !== "success") {
+    throw new Error(data.message || "Failed to fetch next barcode");
+  }
+
+  return data.next_barcode as string;
+}
